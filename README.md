@@ -32,3 +32,13 @@ python main.py
 
 Keep both key.key and passwords.enc safe in the same folder as main.py. If you lose the key.key file, you will not be able to unlock or retrieve any of your saved credentials. The key.key file is required to decrypt the encrypted data stored in passwords.enc.
 
+
+## Contributors
+
+This project was created by:  
+
+- AnthonyAl-khafaji   
+- AnthonyZolman 
+- Mwilson2024
+
+Each contributor played a role in developing, testing, and documenting the project.  

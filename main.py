@@ -5,6 +5,15 @@ import string
 import json
 from cryptography.fernet import Fernet
 import os
+import Login
+
+# --- Login Setup ---
+loginScreen = Login.LoginScreen()  # Initialize the login screen
+loginScreen.root.mainloop()  # Run the login screen
+run = False 
+while not run:
+  run = loginScreen.getAuthenticated()# Initialize the login screen
+# proceed with the password manager
 
 # --- Encryption Setup ---
 KEY_FILE = "key.key"

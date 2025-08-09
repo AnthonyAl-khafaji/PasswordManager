@@ -3,18 +3,30 @@ from tkinter import messagebox
 import random
 import string
 import json
+from unittest import result
 from cryptography.fernet import Fernet
 import os
 import Login
+import time
+import sqlLiteDB 
 
+userID = None
 # --- Login Setup ---
 loginScreen = Login.LoginScreen()  # Initialize the login screen
 loginScreen.root.mainloop()  # Run the login screen
+count =  0
 run = False 
 while not run:
   run = loginScreen.getAuthenticated()# Initialize the login screen
-# proceed with the password manager
+  userID = loginScreen.getUser()
 
+  #time.sleep(5) used for testing, making sure the loop isn't going crazy in  the background
+# proceed with the password manager
+#print (userID)
+#database setup
+db = sqlLiteDB.userDB()
+#db.DropTable("sites")
+db.siteTable()
 # --- Encryption Setup ---
 KEY_FILE = "key.key"
 DATA_FOLDER = "data"
@@ -43,16 +55,16 @@ os.makedirs(DATA_FOLDER, exist_ok=True)
 
 # --- GUI Setup ---
 root = tk.Tk()
-root.title("Password Manager")
+root.title("Pass Keeper")
 root.geometry("500x400")
 root.configure(bg="#1f2c34")  # Dark background
 
 # Title
-title_label = tk.Label(root, text="Password Manager", font=("Arial", 20, "bold"), fg="white", bg="#1f2c34", pady=10)
+title_label = tk.Label(root, text="Pass Keeper", font=("Arial", 20, "bold"), fg="white", bg="#1f2c34", pady=10)
 title_label.pack()
 
 # Frame
-frame = tk.Frame(root, bg="#ffffff", padx=20, pady=20, bd=0, relief="flat")
+frame = tk.Frame(root, bg="#ffffff", padx=20, pady=0, bd=0, relief="flat")
 frame.place(relx=0.5, rely=0.5, anchor="center")
 
 # Labels
@@ -90,9 +102,9 @@ def save_password():
         data = f"{website} | {username} | {password}\n"
         encrypted_data = cipher.encrypt(data.encode())
 
-        with open(PASSWORD_FILE, "ab") as file:
-            file.write(encrypted_data + b"\n")
-
+        #with open(PASSWORD_FILE, "ab") as file:
+        #    file.write(encrypted_data + b"\n")
+        db.createEntrySites(website, username, encrypted_data, userID)
         website_entry.delete(0, tk.END)
         username_entry.delete(0, tk.END)
         password_entry.delete(0, tk.END)
@@ -111,7 +123,10 @@ def search_password():
         messagebox.showerror("Error", "No saved passwords found.")
         return
 
-    try:
+    #saved_username,encPassword = db.retrieveInfo(website, userID)
+    #saved_password = cipher.decrypt(encPassword).decode()
+    #print(f'{saved_username}, {saved_password}')
+    """try:
         with open(PASSWORD_FILE, "rb") as file:
             for line in file:
                 decrypted_data = cipher.decrypt(line.strip()).decode()
@@ -123,6 +138,21 @@ def search_password():
                     )
                     return
         messagebox.showinfo("Not Found", f"No details found for {website}")
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred: {e}")"""
+    try:
+        result = db.retrieveInfo(website, userID)
+        if result is None:
+            messagebox.showinfo("Not Found", f"No details found for {website}")
+            return
+        saved_username, encPassword = result
+        if saved_username:
+            encPassword = cipher.decrypt(encPassword).decode()
+            saved_website, saved_username, saved_password = encPassword.split(" | ")
+            messagebox.showinfo(f"Details for {website}", f"Username: {saved_username}\nPassword: {saved_password}")
+            return
+        elif saved_username is None:
+            messagebox.showinfo("Not Found", f"No details found for {website}")
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {e}")
 

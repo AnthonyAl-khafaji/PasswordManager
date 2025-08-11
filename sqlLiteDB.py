@@ -3,7 +3,7 @@ import sqlite3
 class userDB:
     def __init__(self, dbPath: str = 'users.db'):
         self.dbPath = dbPath
-        #self.createUserTable()  # Ensure the table is created on initialization
+        #self.createUserTable()  
 
     def connect(self):
         return sqlite3.connect(self.dbPath)
@@ -82,6 +82,46 @@ class userDB:
             if row:
                 uName, sPass = row
                 return uName, sPass
+            else:
+                return None
+
+    def retrieveInfoFull(self, site: str, userID: int, uname: str):
+        sql = "SELECT username, passwordEnc FROM sites WHERE siteURL = ? AND userID = ?  and username = ?"
+        with self.connect() as conn:
+            cursor = conn.execute(sql,(site, userID, uname))
+            row = cursor.fetchone()
+            if row:
+                uName = row[0]
+                return uName
+            else:
+                return None
+    def updatePW(self, password, site: str, uname: str, userID: int):
+        sql = "UPDATE sites SET passwordEnc = ? WHERE siteURL = ? AND userID = ? AND username = ?"
+        try:
+            with self.connect() as conn:
+                conn.execute(sql,(password, site, userID, uname))
+                conn.commit() 
+            return True
+        except sqlite3.IntegrityError:
+            return False
+
+    def getallSites(self, uID: int):
+       sql = "SELECT siteURL AS Website, username AS Username FROM sites WHERE userID = ?"
+       headers = ['Website', 'Username']
+       rows = []
+       with self.connect() as conn:
+           for Website, Username in conn.execute(sql, (uID,)):
+                rows.append((Website, Username))
+       return headers, rows
+
+    def getUser(self, uID: int):
+        sql = "SELECT username FROM users WHERE userID = ?"
+        with self.connect() as conn:
+            cursor = conn.execute(sql,(uID,))
+            row = cursor.fetchone()
+            if row:
+                uName, = row
+                return uName
             else:
                 return None
 

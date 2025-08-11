@@ -42,11 +42,11 @@ class LoginScreen:
         loginButton = tk.Button(buttonFrame, text="Login", command=self.loginProcess, width=12, height=1, bg="#4CAF50", fg="white", relief="raised")
         loginButton.grid(row=0, column=0, padx=5)
         #new user button
-        createButton = tk.Button(buttonFrame, text="Create New User", command=self.createNewUser, width=15, height=1, bg="#2196F3", fg="white", relief="raised")
+        createButton = tk.Button(buttonFrame, text="Create New User", command=self.createNewUser, width=15, height=1, bg="dodgerblue", fg="white", relief="raised")
         createButton.grid(row=0, column=1, padx=5)
 
     def loginProcess(self):
-          
+        #get username and password
         username = self.userNameEntry.get().strip()
         password = self.passwordEntry.get()
 
